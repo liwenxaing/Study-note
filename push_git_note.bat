@@ -1,7 +1,7 @@
 COLOR 2
 TITLE "上传git笔记"
 @ECHO OFF
-
+git init
 git status
 git add .
 git commit -m '提交了新的笔记'

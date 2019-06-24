@@ -183,3 +183,103 @@
 
 ```
 
+### 逆向工程
+
+```java
+public class GeneratorTest {
+    public static void main(String[] args) throws Exception {
+        List<String> warnings = new ArrayList<String>();
+        boolean overwrite = true;
+        //指向逆向工程配置文件
+        File configFile = new File(GeneratorTest.class.getResource("/mbg.xml").getFile());
+        ConfigurationParser cp = new ConfigurationParser(warnings);
+        Configuration config = cp.parseConfiguration(configFile);
+        DefaultShellCallback callback = new DefaultShellCallback(overwrite);
+        MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config,
+                callback, warnings);
+        myBatisGenerator.generate(null);
+    }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <context id="testTables" targetRuntime="MyBatis3">
+        <commentGenerator>
+            <!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <!--数据库连接的信息：驱动类、连接地址、用户名、密码 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/dpm_curd" userId="root"
+                        password="root">
+        </jdbcConnection>
+
+        <!-- 默认false，把JDBC DECIMAL 和 NUMERIC 类型解析为 Integer，为 true时把JDBC DECIMAL和NUMERIC类型解析为java.math.BigDecimal -->
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false" />
+        </javaTypeResolver>
+
+        <!-- targetProject:生成PO类的位置，重要！！ -->
+        <javaModelGenerator targetPackage="com.yuntu.dmp.beans"
+                            targetProject=".\src\main\java">
+            <!-- enableSubPackages:是否让schema作为包的后缀 -->
+            <property name="enableSubPackages" value="false" />
+            <!-- 从数据库返回的值被清理前后的空格 -->
+            <property name="trimStrings" value="true" />
+        </javaModelGenerator>
+        <!-- targetProject:mapper映射文件生成的位置，重要！！ -->
+        <sqlMapGenerator targetPackage="mapper"
+                         targetProject=".\src\main\resources">
+            <property name="enableSubPackages" value="false" />
+        </sqlMapGenerator>
+        <!-- targetPackage：mapper接口生成的位置，重要！！ -->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="com.yuntu.dmp.dao"
+                             targetProject=".\src\main\java">
+            <property name="enableSubPackages" value="false" />
+        </javaClientGenerator>
+        <!-- 指定数据库表，要生成哪些表，就写哪些表，要和数据库中对应，不能写错！ -->
+        <table tableName="applicant" domainObjectName="Applicant"/>
+        <table tableName="projectinfo" domainObjectName="ProjectInfo"/>
+
+    </context>
+</generatorConfiguration>
+```
+## 3、Mybatis中javaType和jdbcType对应关系
+
+```
+   JDBCType            JavaType
+    CHAR                String
+    VARCHAR             String
+    LONGVARCHAR         String
+    NUMERIC             java.math.BigDecimal
+    DECIMAL             java.math.BigDecimal
+    BIT                 boolean
+    BOOLEAN             boolean
+    TINYINT             byte
+    SMALLINT            short
+    INTEGER             int
+    BIGINT              long
+    REAL                float
+    FLOAT               double
+    DOUBLE              double
+    BINARY              byte[]
+    VARBINARY           byte[]
+    LONGVARBINARY               byte[]
+    DATE                java.sql.Date
+    TIME                java.sql.Time
+    TIMESTAMP           java.sql.Timestamp
+    CLOB                Clob
+    BLOB                Blob
+    ARRAY               Array
+    DISTINCT            mapping of underlying type
+    STRUCT              Struct
+    REF                 Ref
+    DATALINK            java.net.URL[color=red][/color]
+```

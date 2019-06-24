@@ -2304,7 +2304,112 @@ console.log([].slice.call(obj))
 - toString()
 - valueOf()
 
----
+
+
+### JavaScript 模块化编程
+
++ CommonsJs 规范
+
+  + 主要解决了服务端的模块化问题 
+  + Nodejs
+
++ AMD 规范
+
+  + 解决了浏览器的模块化问题  浏览器的模块化需要使用异步的形式去加载 同步可能会造成浏览器假死等待  并且依赖网速
+
+  + RequireJs 使用
+
+  + 加载RequireJs
+
+    + 可以直接把require标签放置到网页文件的最下方
+    + 也可以加上
+    + async属性表明这个文件需要异步加载，避免网页失去响应。IE不支持这个属性，只支持defer，所以把defer也写上。 
+    + 具体使用  data-main 就可以加载我们的主模块 也就是入口模块  默认的后缀名 js 所以可以不用写js
+
+    ```html
+    <script src="js/require.js" type="text/javascript" defer async  data-main="js/main"></script>
+    ```
+
+    + 模块的加载   会异步加载 按照顺序加载
+
+    + ```javascript
+      　require(['jquery', 'underscore', 'backbone'], function ($, _, Backbone){
+      　　　　// some code here
+        });
+      ```
+
+    + ```js
+      // 定义一个模块 没有依赖的模块
+      define(function () {
+             function add(a,b) {
+                  return a + b ;
+             }
+      
+             return {
+                 add:add
+             }
+      });
+      ```
+
+    + ```js
+      // 定义一个模块 有依赖的模块
+      define(["query"],function () {
+             function add(a,b) {
+                  return a + b ;
+             }
+      
+             return {
+                 add:add
+             }
+      });
+      ```
+
+    + 配置模块信息
+
+    + ```js
+      // 可以去配置一下引入模块的路径 逐一配置
+      require.config({
+           paths:{
+               "jquery":"jquery.min"
+           }
+      });
+      ```
+
+    + **加载非规范的模块** 
+
+    + 举例来说，underscore和backbone这两个库，都没有采用AMD规范编写。如果要加载它们的话，必须先定义它们的特征。 
+
+    + ```js
+      　require.config({
+      　　　　shim: {
+      　　　　　　'underscore':{
+      　　　　　　　　exports: '_'
+      　　　　　　},
+      　　　　　　// 依赖项
+      　　　　　　'backbone': {
+      　　　　　　　　deps: ['underscore', 'jquery'],
+      　　　　　　　　exports: 'Backbone'
+      　　　　　　}
+      　　　　}
+      　　});
+      ```
+
+    + 比如，jQuery的插件可以这样定义： 
+
+    + ```js
+      　shim: {
+      
+      　　　　'jquery.scroll': {
+      
+      　　　　　　deps: ['jquery'],
+      
+      　　　　　　exports: 'jQuery.fn.scroll'
+      
+      　　　　}
+      　　}
+      ```
+
+    + 
 
 ## 附录
 

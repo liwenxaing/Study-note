@@ -98,11 +98,64 @@
 + 有序的集合
 
 + lpush  类似栈   先进后出   在链表前面添加一个元素
+
 + rpush   队列     先进先出    在链表后面添加一个元素
+
 + lpop    在链表前面移除一个元素 并且返回这个移除的元素
+
 + rpop   在链表后面移除一个元素 并且返回这个移除的元素
+
 + lindex  获取到链表中的指定下标的元素
+
 + lrange   查看指定范围内的值   一般是 0 -1 查看全部
+
++ Blpop删除，并获得该列表中的第一元素，或阻塞，直到有一个可用
+
++ Brpop删除，并获得该列表中的最后一个元素，或阻塞，直到有一个可用
+
++ Brpoplpush
+
++ Lindex获取一个元素，通过其索引列表
+
++ Linsert在列表中的另一个元素之前或之后插入一个元素
+
++ Llen获得队列(List)的长度
+
++ Lpop从队列的左边出队一个元素
+
++ Lpush从队列的左边入队一个或多个元素
+
++ Lpushx当队列存在时，从队到左边入队一个元素
+
++ Lrange从列表中获取指定返回的元素
+
++ Lrem从列表中删除元素
+
++ Lset设置队列里面一个元素的值
+
++ Ltrim修剪到指定范围内的清单
+
++ Rpop从队列的右边出队一个元素
+
++ Rpoplpush删除列表中的最后一个元素，将其追加到另一个列表
+
++ Rpush从队列的右边入队一个元素
+
++ Rpushx从队列的右边入队一个元素，仅队列存在时有效
+
++ Redis支持php、python、c等接口
+
+  应用场景：
+
+  Redis list的应用场景非常多，也是Redis最重要的数据结构之一，比如twitter的关注列表，粉丝列表等都可以用Redis的list结构来实现。
+
+  Lists 就是链表，相信略有数据结构知识的人都应该能理解其结构。使用Lists结构，我们可以轻松地实现最新消息排行等功能。
+
+  Lists的另一个应用就是消息队列，
+
+  可以利用Lists的PUSH操作，将任务存在Lists中，然后工作线程再用POP操作将任务取出进行执行。Redis还提供了操作Lists中某一段的api，你可以直接查询，删除Lists中某一段的元素。
+
+  如果需要还可以用redis的Sorted-Sets数据结构来做优先队列.可以给每条消息加上一个唯一的序号。这里就不详细介绍了。
 
 **set**
 
@@ -162,7 +215,7 @@
 + appendonly no    是否开启aof模式 默认不开启
 + appendfilename "appendonly.aof" aof文件名称
 
-## 主从复制[集群]
+## 主从复制
 
 + master 是主服务器
 + slave   是从服务器
@@ -276,14 +329,399 @@ ruby -v
 ![1557717633598](assets/1557717633598.png)
 
 + cluster nodes   查看集群
-+ 
 
 ## Java操作Redis集群
 
++ 基础用法
+
++ ```java
+  package redisdemo;
+  
+  import java.util.HashMap;
+  import java.util.List;
+  import java.util.Map;
+  import java.util.Map.Entry;
+  import java.util.Scanner;
+  import java.util.Set;
+  import java.util.UUID;
+  
+  import org.junit.After;
+  import org.junit.Before;
+  import org.junit.Test;
+  
+  import com.alibaba.fastjson.JSON;
+  import com.alibaba.fastjson.TypeReference;
+  
+  import redis.clients.jedis.Jedis;
+  import redis.clients.jedis.JedisPubSub;
+  
+  public class demo02 {
+  
+      private Jedis j; 
+  
+      @Before
+      public void before() {
+          j = new Jedis("192.168.190.138",6379);
+      }
+  
+      @Test
+      public void String_incrBy(){
+          j.incrBy("volumn",5);
+          String str = j.get("volumn");
+          System.out.println(str);
+      }
+  
+      @Test
+      public void Hash_hset_hget() {
+          //		 Long hsetnx = j.hsetnx("myHash","name","lwx");
+          //		 Long hsetnx2 = j.hsetnx("myHash","age","18");
+          //		 Long hsetnx3 = j.hsetnx("myHash","gender","0");
+          //		 System.out.println(hsetnx+"-"+hsetnx2+"-"+hsetnx3);
+          Map<String,User> map = new HashMap<String,User>();
+  
+          for(int i=0; i < 100000; i++) {
+              String uid3 = UUID.randomUUID().toString();
+              map.put(uid3,new User(uid3,"lwx"+i,""+i,""+i));
+          }
+  
+          String mapStr = JSON.toJSONString(map);
+  
+          j.set("SYS_USER_TABLE",mapStr);
+  
+  
+          String string = j.get("SYS_USER_TABLE");
+  
+          Map<String,User> parseObject1 = JSON.parseObject(string,new TypeReference<HashMap<String,User>>() {});
+  
+          System.out.println(parseObject1.size());
+      }
+  
+  
+      @Test
+      public void test() {
+          Long lo = System.currentTimeMillis();
+          for(int i = 0 ; i < 10000 ; i++) {
+              j.set(""+i,JSON.toJSONString(new User(UUID.randomUUID().toString(),UUID.randomUUID().toString(),UUID.randomUUID().toString(),UUID.randomUUID().toString())));
+          }
+          Long loend = System.currentTimeMillis();
+          System.out.println((loend-lo)+"ms");
+      }
+  
+      @Test
+      public void get() {
+          Long lo = System.currentTimeMillis();
+          for(int i = 0 ; i < 10000 ; i++) {
+              String string = j.get(""+i);
+              System.out.println(string);
+          }
+          Long loend = System.currentTimeMillis();
+          System.out.println((loend-lo)+"ms");
+      }
+  
+      @Test
+      public void del() {
+          String flushDB = j.flushDB();
+          System.out.println(flushDB);
+          Set<String> keys = j.keys("*");
+          System.out.println(keys);
+          for (String string : keys) {
+              System.out.println(string);	
+          }
+      }
+  
+  
+      @Test
+      public void hashMap() {
+          Map<String, String> map = new HashMap();
+          map.put("userName", "jack");
+          map.put("password", "123");
+          map.put("age", "12");
+          // 将map存入redis中
+          j.hmset("myMap", map);
+  
+          // 取出redis中的map进行遍历
+          Map<String, String> userMap = j.hgetAll("myMap");
+          for (Map.Entry<String, String> item : userMap.entrySet()) {
+              System.out.println(item.getKey() + " : " + item.getValue());
+          }
+      }
+  
+      @Test
+      public void hashMap1() {
+          Map<String, String> map = new HashMap<String,String>();
+          map.put("1", JSON.toJSONString(new User("1","2","3","4")));
+          map.put("2", JSON.toJSONString(new User("1","2","3","4")));
+          map.put("3", JSON.toJSONString(new User("1","2","3","4")));
+          // 将map存入redis中
+          String hmset = j.hmset("SYS_USER_TABLE", map);
+  
+          Map<String, String> hgetAll = j.hgetAll("SYS_USER_TABLE");
+  
+          for(Entry<String,String> str : hgetAll.entrySet()) {
+              System.out.println(str.getKey() + ":"+ JSON.parseObject(str.getValue(),User.class).getName());
+          }
+      }
+  
+      @Test
+      public void list() {
+          Long lpush = j.lpush("list1","list1Value");
+          System.out.println(lpush);
+          String lindex = j.lindex("list1",0);
+          System.out.println(lindex);
+  
+          List<String> lrange = j.lrange("list1", 0,-1);
+          System.out.println(lrange.size());
+      }
+  
+      @Test
+      public void set() throws InterruptedException {
+  
+  
+          DIY diy = new DIY();
+  
+  
+          j.subscribe(diy,"CCTV");
+  
+  
+  
+      }
+  
+      @Test
+      public void set123() throws InterruptedException {
+          Long publish = j.publish("CCTV","CCTV频道开播了。。。。。");
+          System.out.println(publish);
+  
+      }
+  
+      @Test
+      public void set1() throws InterruptedException {
+          DIY diy = new DIY();
+          j.subscribe(diy,"CCTV");
+          Thread.sleep(10000);
+          diy.unsubscribe();
+      }
+  
+      @After
+      public void close() {
+          j.close();
+      }
+  }
+  
+  class DIY extends JedisPubSub{
+  
+      @Override
+      public void onUnsubscribe(String channel, int subscribedChannels) {
+          System.out.println("取消订阅。。。。。。。。");
+          super.onUnsubscribe(channel, subscribedChannels);
+      }
+  
+      @Override
+      public void onMessage(String channel, String message) {
+          System.out.println("收到通道:" + channel + "- 消息:"+message);
+          super.onMessage(channel, message);
+      }
+  }
+  
+  ```
+
++ 发布与订阅
+
++ ```java
+  package redis.one.demo;
+  
+  import redis.clients.jedis.Jedis;
+  import redis.clients.jedis.JedisPubSub;
+  
+  public class redis_one {
+      final static String MasterIp = "192.168.190.138";
+      final static Integer port = 6379;
+      public static void main(String[] args) throws InterruptedException {
+           Jedis j = new Jedis(MasterIp,port);
+  
+              /**
+               * 订阅
+               */
+              listener list = new listener();
+              j.subscribe(list,"CCTV");
+  
+  
+      }
+  }
+  
+  class listener extends JedisPubSub{
+      @Override
+      public void onMessage(String channel, String message) {
+          System.out.println("频道："+channel+"--"+"消息："+message);
+          super.onMessage(channel, message);
+      }
+  
+      @Override
+      public void unsubscribe(String... channels) {
+          System.out.println("取消订阅："+channels);
+          super.unsubscribe(channels);
+      }
+  }
+  
+  class aaa{
+      final static String MasterIp = "192.168.190.138";
+      final static Integer port = 6379;
+      public static void main(String[] args) throws InterruptedException {
+          Jedis j = new Jedis(MasterIp,port);
+  
+          /**
+           * 发布
+           */
+          listener list = new listener();
+          j.publish("CCTV","1234568789");
+  
+      }
+  }
+  
+  ```
+
 + HostAndPort
+
 + JedisPoolConfig
+
 + JedisCluster
-+ Jedis
+
++ jedis
+
++ 集群
+
++ ```java
+      /**
+       * 设置节点的ip和端口
+       */
+      Set<HostAndPort> jedisHostAndPort = new HashSet<>();
+      jedisHostAndPort.add(new HostAndPort("192.168.190.138",7001));
+      jedisHostAndPort.add(new HostAndPort("192.168.190.138",7002));
+      jedisHostAndPort.add(new HostAndPort("192.168.190.138",7003));
+      jedisHostAndPort.add(new HostAndPort("192.168.190.138",7004));
+      jedisHostAndPort.add(new HostAndPort("192.168.190.138",7005));
+      jedisHostAndPort.add(new HostAndPort("192.168.190.138",7006));
+  
+      /**
+       * 使用连接池 设置配置
+       */
+      JedisPoolConfig poolConfig = new JedisPoolConfig();
+      poolConfig.setMaxTotal(100);
+      poolConfig.setMaxIdle(20);
+      poolConfig.setMaxWaitMillis(-1);
+      poolConfig.setTestOnBorrow(true);
+  
+      /**
+       * 获取到集群对象
+       */
+      JedisCluster jc = new JedisCluster(jedisHostAndPort,1000,10, poolConfig);
+  
+      /**
+       * 操作
+       */
+      jc.set("gender","woman");
+      jc.close();
+  ```
+  + 整合Spring
+
+  + ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+           xmlns:context="http://www.springframework.org/schema/context"
+           xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+           xmlns:aop="http://www.springframework.org/schema/aop"
+           xsi:schemaLocation="
+                http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+        <context:property-placeholder location="classpath:redis.properties" />
+        <context:component-scan base-package="redis.one.demo">
+        </context:component-scan>
+    
+        <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+            <!--  最大空闲个数  -->
+            <property name="maxIdle" value="${redis.maxIdle}" />
+            <!--  总连接池数量  -->
+            <property name="maxTotal" value="${redis.maxActive}" />
+            <!--  最大等待时间  -->
+            <property name="maxWaitMillis" value="${redis.maxWait}" />
+            <!--    -->
+            <property name="testOnBorrow" value="${redis.testOnBorrow}" />
+        </bean>
+    
+        <bean id="hostport1" class="redis.clients.jedis.HostAndPort">
+            <constructor-arg name="host" value="192.168.190.138" />
+            <constructor-arg name="port" value="7001" />
+        </bean>
+        <bean id="hostport2" class="redis.clients.jedis.HostAndPort">
+            <constructor-arg name="host" value="192.168.190.138" />
+            <constructor-arg name="port" value="7002" />
+        </bean>
+        <bean id="hostport3" class="redis.clients.jedis.HostAndPort">
+            <constructor-arg name="host" value="192.168.190.138" />
+            <constructor-arg name="port" value="7003" />
+        </bean>
+        <bean id="hostport4" class="redis.clients.jedis.HostAndPort">
+            <constructor-arg name="host" value="192.168.190.138" />
+            <constructor-arg name="port" value="7004" />
+        </bean>
+        <bean id="hostport5" class="redis.clients.jedis.HostAndPort">
+            <constructor-arg name="host" value="192.168.190.138" />
+            <constructor-arg name="port" value="7005" />
+        </bean>
+        <bean id="hostport6" class="redis.clients.jedis.HostAndPort">
+            <constructor-arg name="host" value="192.168.190.138" />
+            <constructor-arg name="port" value="7006" />
+        </bean>
+    
+        <bean id="redisCluster" class="redis.clients.jedis.JedisCluster">
+            <constructor-arg name="nodes">
+                <set>
+                    <ref bean="hostport1" />
+                    <ref bean="hostport2" />
+                    <ref bean="hostport3" />
+                    <ref bean="hostport4" />
+                    <ref bean="hostport5" />
+                    <ref bean="hostport6" />
+                </set>
+            </constructor-arg>
+            <constructor-arg name="timeout" value="6000" />
+            <constructor-arg name="poolConfig" ref="jedisPoolConfig"/>
+        </bean>
+    </beans>
+    ```
+
+  + ```java
+    package com.x.test;
+    
+    import org.springframework.context.ApplicationContext;
+    import org.springframework.context.support.ClassPathXmlApplicationContext;
+    
+    import redis.clients.jedis.JedisCluster;
+    
+    public class ClusterTest {
+    
+        public static JedisCluster jedisCluster;
+    
+        public void set(String key, String value) {
+            jedisCluster.set(key, value);
+        }
+    
+        public static void main(String[] args) {
+    
+            ApplicationContext ac =  new ClassPathXmlApplicationContext("classpath:/applicationContext-cluster.xml");
+            jedisCluster = (JedisCluster)ac.getBean("redisCluster");
+    
+            /* for (int i=0; i<100; i++) {
+            	jedisCluster.set("name" + i, "value" + i);
+            }*/
+    
+            System.out.println(jedisCluster.get("name4"));
+        }
+    }
+    
+    ```
+
 ##架构简单思路
 
 + 先划分各个模块

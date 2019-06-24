@@ -64,7 +64,7 @@ Queue
 ### 安装ActiveMQ
 
 + 版本问题
-  + 如果使用activeMQ 5.10.x 必须使用jdk1.8才能正常使用
+  + 如果使用activeMQ 5.10.x 必须使用jdk1.8+才能正常使用
 + 默认端口
   + 8161
 + 默认用户
@@ -73,7 +73,7 @@ Queue
 + 主要配置文件
   + activemq.xml
   + jetty.xml
-  + jetty-realm.xml
+  + jetty-realm.properties
   + users.properties
   + group.properties
 + 服务器
@@ -206,7 +206,6 @@ Queue
                   **/
                   connectionFactory = new ActiveMQConnectionFactory("guest","guest",
                           "tcp://192.168.190.133:61616");
-      
                   connection = connectionFactory.createConnection();
                   connection.start();
                   session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE);

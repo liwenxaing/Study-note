@@ -968,7 +968,6 @@ public ModelAndView test02(@Validated Student student, BindingResult br){
 #### 文件上传
 
 + 需要添加注解驱动  否则会报错  <mvc:annotation-driven/>
-+ 注意 客户端表单里的input name 要和控制器里面接受的参数名一致 否则为null
 
 + ```xml
   <!-- 注册上传解析器 id 必须是multipartResolver 底层通过这个名字获取-->
@@ -1001,12 +1000,9 @@ public ModelAndView test02(@Validated Student student, BindingResult br){
           @RequestMapping(value = "/upFile")
           @ResponseBody
           public Object uploadFile(MultipartFile img, HttpSession session) throws IOException{
-          // 服务器路径 可以返回做图片回显  加上 文件名字
-          String projectServerPath = request.getScheme() + "://"+request.getServerName()+":" +
-                request.getServerPort() + request.getContextPath() + "/upload/";
               // 判断大小的话可以判断名称的结尾
               String name = img.getOriginalFilename();
-              // 设置服务器的根路径 上传的绝对路径  idea 默认不会编译空文件夹
+              // 设置服务器的根路径  idea 默认不会编译空文件夹
               String path = session.getServletContext().getRealPath("/upload");
               File file = new File(path,name);
               img.transferTo(file);  // 执行上传操作

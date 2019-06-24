@@ -666,11 +666,11 @@ https://mvnrepository.com/
 <version>6.0.13.Final</version>
 </dependency>
 ```
-## 搭建私服
+##搭建私服
 
-- Nexus Repository OSS
++ Nexus Repository OSS
 
-- 下载OSS: https://www.sonatype.com/download-oss-sonatype 
++ 下载OSS: https://www.sonatype.com/download-oss-sonatype 
   ，现在是3.0以上版本，下载 [安装 ](http://www.liuhaihua.cn/archives/tag/%e5%ae%89%e8%a3%85)或解压，到bin目录下：
 
   1. 在像Linux这样的类Unix平台上使用命令： ./nexus run
@@ -678,7 +678,7 @@ https://mvnrepository.com/
 
   [启动过程 ](http://www.liuhaihua.cn/archives/tag/starting-procedure)：
 
-  ![自己搭建Maven服务器私服](D:/%E7%AC%94%E8%AE%B0/%E7%AC%94%E8%AE%B0/java/assets/mymaven.png)
+  ![自己搭建Maven服务器私服](assets/mymaven.png)
 
   1. 打开浏览器并输入URL： http://localhost:8081/ 
      将显示Nexus Repository Manager欢迎屏幕。
@@ -697,7 +697,7 @@ https://mvnrepository.com/
 
      现在我们可以为自己项目建立一个仓库，比如名为my-repository，找到创建仓库的按钮：
 
-     ![自己搭建Maven服务器私服](D:/%E7%AC%94%E8%AE%B0/%E7%AC%94%E8%AE%B0/java/assets/createrepo.png)
+     ![自己搭建Maven服务器私服](assets/createrepo.png)
 
      进去后，选择maven2(hosted)，如果你像做 [互联网 ](http://www.liuhaihua.cn/archives/tag/%e4%ba%92%e8%81%94%e7%bd%91)上仓库的 [缓存 ](http://www.liuhaihua.cn/archives/tag/%e7%bc%93%e5%ad%98)代理，就选择maven2(proxy)，hosted就是自己的私库。
 
@@ -705,7 +705,7 @@ https://mvnrepository.com/
 
      创建好后，可以在仓库列表中看到我们的仓库名称为my-repository，点按进入：
 
-     ![自己搭建Maven服务器私服](D:/%E7%AC%94%E8%AE%B0/%E7%AC%94%E8%AE%B0/java/assets/oss1.png)
+     ![自己搭建Maven服务器私服](assets/oss1.png)
 
      注意我们的仓库URL是：
 
@@ -730,7 +730,7 @@ https://mvnrepository.com/
 
      下一步设置用户名和密码，首先创建一个角色，比如testRole：
 
-     ![自己搭建Maven服务器私服](D:/%E7%AC%94%E8%AE%B0/%E7%AC%94%E8%AE%B0/java/assets/oss2.png)
+     ![自己搭建Maven服务器私服](assets/oss2.png)
 
      这里给与testRole的权限我们选择的是nx-all，熟悉之后，可以进行详细的 [定制 ](http://www.liuhaihua.cn/archives/tag/private)。
 
