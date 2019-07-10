@@ -99,6 +99,7 @@ num=${random.int}
 + 性能要比log4j高
 + 功能更丰富 支持打印日志到数据库 和 本地
 + SpringBoot 默认已经集成了这个日志工具
++ 只需要一个xml的配置文件放到资源路径下面即可
 
 ### 多环境配置
 
@@ -2608,10 +2609,11 @@ window.onload=function (ev) {
          in-memory: true
          
       ```
-    #spring.activemq.broker-url=failover:(tcp://localhost:61616,tcp://localhost:61617)
+  spring.activemq.broker-url=failover:(tcp://localhost:61616,tcp://localhost:61617)
+
     ```
   
-  + ```java
+    java
     
     @Component
     public class JMSProducer {
