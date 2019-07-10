@@ -1934,6 +1934,7 @@ public class App80 {
         # 忽略多个服务名字
         ignored-services: "*"
         # 设置前缀
+	prefix: /lwx
       ```
 
 + http://myzuul.com:9999/lwx/mydept/dept/get/2  完整路径
