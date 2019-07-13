@@ -275,7 +275,7 @@
 
   + ```java
     port  700*                                       //端口7000,7002,7003        
-    bind 本机ip                                       //默认ip为127.0.0.1 需要改为其他节点机器可访问的ip 否则创建集群时无法访问对应的端口，无法创建集群
+    bind 本机ip                                       //默认ip为127.0.0.1 需要改为其他节点机器可访问的ip 0.0.0.0 即可 否则创建集群时无法访问对应的端口，无法创建集群
     daemonize    yes                               //redis后台运行
     pidfile  /var/run/redis_7000.pid          //pidfile文件对应7000,7001,7002
     cluster-enabled  yes                           //开启集群  把注释#去掉
