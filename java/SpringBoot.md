@@ -12,7 +12,7 @@ SpringBoot 使编码加单
 
 SpringBoot 使部署简单
 
-SpringBoot 使监控简
+SpringBoot 使监控简单
 
 ###SpringBoot HelloWorld
 
@@ -112,7 +112,7 @@ num=${random.int}
 + ```properties
   # application.properties
   
-  spring.profiles.active=prod
+  spring.profiles.active=pord
   ```
 
 + ```properties
@@ -180,6 +180,62 @@ num=${random.int}
   ```
 
 ###SpringBoot 整合 web层技术
+
+#### 整合拦截器
+
++ 首先，我们去创建一个名为LoginInterceptor的拦截器，来过滤请求，我们创建的拦截器要去实现HandlerInterceptor接口，然后定义我们的方法 
+
++ ```java
+  public class LoginInterceptor implements HandlerInterceptor {
+  
+      private static final Logger log = LoggerFactory.getLogger(LoginInterceptor.class);
+  
+      /**
+       * 进入controller层之前拦截请求
+       * @param httpServletRequest
+       * @param httpServletResponse
+       * @param o
+       * @return
+       * @throws Exception
+       */
+      @Override
+      public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
+  
+          log.info("---------------------开始进入请求地址拦截----------------------------");
+          return true;
+  
+      }
+  
+      @Override
+      public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
+          log.info("--------------处理请求完成后视图渲染之前的处理操作---------------");
+      }
+  
+      @Override
+      public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
+          log.info("---------------视图渲染之后的操作-------------------------0");
+      }
+  
+  }
+  ```
+
++ 接下来我们需要将**LoginInterceptor**拦截器添加到**SpringBoot**的配置中，让接下来我们需要将**LoginInterceptor**拦截器添加到SpringBoot的配置中，让SpringBoot项目有这么一个拦截器存在，我们新创建一个WebAppConfig，
+  将拦截器的配置以及拦截路径配置好
+
++ 项目有这么一个拦截器存在，我们新创建一个WebAppConfig，
+  将拦截器的配置以及拦截路径配置好
+
++ ```java
+  @Configuration
+  public class WebAppConfig extends WebMvcConfigurerAdapter{
+      @Override
+      public void addInterceptors(InterceptorRegistry registry){
+          registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**");
+      }
+  }
+  ```
+
++ 
 
 #### 整合Servlet
 
